@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>SelfSplat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <!-- <link rel="icon" href="./static/images/favicon.svg"> -->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <!-- <script src="./static/js/script.js"></script> -->
+
+</head>
+<body>
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title"><span class="depth">SelfSplat</span>: Pose-Free and 3D Prior-Free Generalizable 3D Gaussian Splatting</h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <A href="https://github.com/Gynjn">Gyeongjin Kang</A><sup>1</sup><sup>*</sup>,</span>
+              <span class="author-block">
+                <A href="https://github.com/Yoo-jisang">Jisang Yoo</A><sup>1</sup><sup>*</sup>,</span>
+              <span class="author-block">
+                <A href="https://github.com/Kanadae">Jihyeon Park</A><sup>1</sup>,</span>
+              <span class="author-block">
+                <A href="https://github.com/stnamjef">Seungtae Nam</A><sup>1</sup>,</span>
+              <span class="author-block">
+                <A href="https://gynjn.github.io/selfsplat/">Hyeonsoo Im</A><sup>2</sup>,</span> <br>
+              <span class="author-block">
+                <A href="https://gynjn.github.io/selfsplat/">Shin sangheon</A><sup>2</sup>,</span>
+              <span class="author-block">
+                <A href="https://kuaicv.com/professor/?theme=pub/antoniau0026hide_banners=true">Sangpil Kim</A><sup>3</sup>,</span>                                
+              <span class="author-block">
+                <A href="https://silverbottlep.github.io/">Eunbyung Park</A><sup>1</sup><sup>†</sup></span>
+
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block" style="margin-right: 40px;">Sungkyunkwan University<sup>1</sup></span>
+              <span class="author-block" style="margin-right: 40px;">Hanhwa Systems<sup>2</sup></span>
+              <span class="author-block">Korea University<sup>3</sup></span> <br>
+            </div>
+            <div class="column has-text-centered">
+                <span class="link-block">
+                <a href="https://gynjn.github.io/selfsplat/"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+                </span>
+                <!-- Code Link. -->
+                <span class="link-block">
+                  <a href="https://github.com/Gynjn/selfsplat"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero is-light is-small">
+    <div class="hero-body">
+      <div class="container">
+        <div class=" has-text-centered">
+          <h2 class="title is-3">Qualitative Results</h2>
+          <h2 class="title is-3" style="text-align: center; font-size: 130%; margin-bottom: -0.1%;">RE10k (256 x 256)</h2>
+          <div id="results-carousel" class="carousel results-carousel" data-slides-to-scroll="3" data-slides-to-show="3">
+            <div class="item item-steve">
+              <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/0.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-chair-tp">
+              <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/1.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-shiba">
+              <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/2.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-fullbody">
+              <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/3.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/4.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/5.mp4"
+                        type="video/mp4">
+              </video>
+            </div>    
+            <div class="item item-steve">
+              <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/6.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-chair-tp">
+              <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/7.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-shiba">
+              <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/8.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-fullbody">
+              <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/9.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/10.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/re10k/11.mp4"
+                        type="video/mp4">
+              </video>
+            </div>                        
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero is-light is-small">
+    <div class="hero-body">
+      <div class="container">
+        <div class=" has-text-centered">
+          <h2 class="title is-3" style="text-align: center; font-size: 130%; margin-top: -2%; margin-bottom: -0.1%;">ACID (256 x 256)</h2>
+          <div id="results-carousel" class="carousel results-carousel" data-slides-to-scroll="3" data-slides-to-show="3">
+            <div class="item item-steve">
+              <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/0.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-chair-tp">
+              <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/1.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-shiba">
+              <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/2.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-fullbody">
+              <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/3.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/4.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/5.mp4"
+                        type="video/mp4">
+              </video>
+            </div>    
+            <div class="item item-steve">
+              <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/6.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-chair-tp">
+              <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/7.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-shiba">
+              <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/8.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-fullbody">
+              <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/9.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/10.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/acid/11.mp4"
+                        type="video/mp4">
+              </video>
+            </div>                        
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero is-light is-small">
+    <div class="hero-body">
+      <div class="container">
+        <div class=" has-text-centered">
+          <h2 class="title is-3" style="text-align: center; font-size: 130%; margin-top: -2%; margin-bottom: -0.1%;">DL3DV (256 x 448)</h2>
+          <div id="results-carousel" class="carousel results-carousel" data-slides-to-scroll="2" data-slides-to-show="2">
+            <div class="item item-steve">
+              <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/dl3dv/0.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-chair-tp">
+              <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/dl3dv/1.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-shiba">
+              <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/dl3dv/2.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-fullbody">
+              <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/dl3dv/3.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/dl3dv/4.mp4"
+                        type="video/mp4">
+              </video>
+            </div>
+            <div class="item item-toby">
+              <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+                <source src="./static/videos/dl3dv/5.mp4"
+                        type="video/mp4">
+              </video>
+            </div>                        
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- <div class="w3-center">    
+    <h2 class="title is-3" style="text-align: center;">Qualitative Results</h2>
+    <div style="width: 100%; display: inline-block; margin-top: -4%;">
+      <video controls style="width:100%; transform: scale(0.8);" autoplay loop playsinline muted>
+        <source src="static/videos/re10k_no_label.mp4" type="video/mp4">
+        Sorry, your browser doesn't support embedded videos.
+      </video>
+    </div>
+    <h2 class="title is-3" style="text-align: center; font-size: 130%; margin-top: -3.5%;">RE10k</h2>
+  </div>
+  <div class="w3-center">
+    <div style="width: 100%; display: inline-block; margin-top: -2%;">
+      <video controls style="width:100%; transform: scale(0.8);" autoplay loop playsinline muted>
+        <source src="static/videos/acid_no_label.mp4" type="video/mp4">
+        Sorry, your browser doesn't support embedded videos.
+      </video>
+    </div>
+  <h2 class="title is-3" style="text-align: center; font-size: 130%; margin-top: -3.5%;">ACID</h2>
+  </div>
+  <div class="w3-center">
+    <div style="width: 100%; display: inline-block; margin-top: -3%;">
+      <video controls style="width:100%; transform: scale(0.8);" autoplay loop playsinline muted>
+        <source src="static/videos/dl3dv_no_label.mp4" type="video/mp4">
+        Sorry, your browser doesn't support embedded videos.
+      </video>
+    </div>
+  <h2 class="title is-3" style="text-align: center; font-size: 130%; margin-top: -4%;">DL3DV</h2>
+  </div>   -->
+
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+    <!-- abstract -->
+    <p class="title is-3 mt-5 has-text-centered"> Abstract </p>
+    <h2 class="title is-3" style="text-align: center; font-size: 125%;">
+      <span style="color: red;">TL;DR:</span> We present SelfSplat, enabling 3D reconstruction from unposed images without any 3D priors
+  </h2>
+    <p class="content is-size-6 has-text-left">
+      We propose <b>SelfSplat</b>, a novel 3D Gaussian Splatting model designed to perform pose-free and 3D prior-free generalizable 3D reconstruction from unposed multi-view images. These settings are inherently ill-posed due to the lack of ground-truth data, learned geometric information, and the need to achieve accurate 3D reconstruction without finetuning, making it difficult for conventional methods to achieve high-quality results. Our model addresses these challenges by effectively integrating explicit 3D representations with self-supervised depth and pose estimation techniques, resulting in reciprocal improvements in both pose accuracy and 3D reconstruction quality. Furthermore, we incorporate a matching-aware pose estimation network and a depth refinement module to enhance geometry consistency across views, ensuring more accurate and stable 3D reconstructions. To present the performance of our method, we evaluated it on large-scale real-world datasets, including RealEstate10K, ACID, and DL3DV. SelfSplat achieves superior results over previous state-of-the-art methods in both appearance and geometry quality, also demonstrates strong cross-dataset generalization capabilities. Extensive ablation studies and analysis also validate the effectiveness of our proposed methods.
+    </p>
+      <!--/ Abstract. -->
+
+      <!-- Paper video. -->
+    </div>
+  </section>
+
+
+
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Concurrent Work. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Pipeline</h2>
+          <div class="content has-text-justified">
+            <img src="./static/images/main_final_redx.jpg">
+            <p align="justify">Given unposed multi-view images as input, we predict depth and Gaussian attributes from the images, as well as the relative camera poses between them. We unify a self-supervised depth estimation framework with explicit 3D representation achieving accurate scene reconstruction.</p>
+            <img src="./static/images/sub_figure_architecture_font_up.jpg" style="width:100%; display: block; margin: 0 auto;">
+            <p align="justify">Matching-aware pose network (a) and depth refinement module (b). We leverage cross-view features from input images to achieve accurate camera pose estimation, and use these estimated poses to further refine the depth maps with spatial awareness.             
+              </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Concurrent Work. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Qualitative Comparisons</h2>
+					<img src="./static/images/main_result.jpg" style="width:100%; display: block; margin: 0 auto;">
+          <p class="center-text" style="width: 100%; text-align: center; margin: 0 auto;">
+            Qualitative comparison of novel view synthesis on RE10k (top two rows) and ACID (bottom row) datasets.
+          </p>                      
+					<img src="./static/images/dl3dv.jpg" style="width:100%; display: block; margin-top: 3%;">
+
+          <p class="center-text" style="width: 100%; text-align: center; margin: 0 auto;">
+            Qualitative comparison of novel view synthesis on DL3DV dataset.
+          </p>            
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Epipolar Lines Visualiation</h2>
+					<img src="./static/images/epi.jpg" style="width:80%">
+
+          <p class="center-text" style="width: 80%; text-align: left; margin: 0 auto;">
+            Epipolar lines visualization. We draw the lines from reference to target frame using relative camera pose. It demonstrates the effectiveness of our
+            approach in capturing accurate geometric alignments.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Multi-view Inference with Camera Trajectory</h2>
+					<img src="./static/images/traj_page.jpg" style="width:80%">
+
+          <p class="center-text" style="width: 80%; text-align: left; margin: 0 auto;">
+            We evaluate the model's performance on multi-view (more than two) context images, considering its practical application.
+            and visualize the camera trajectory on RE10k dataset. Construction of trajectory only consider the translation part of the estimated camera poses.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Depth Visualization</h2>
+					<img src="./static/images/depth4_page.jpg" style="width:70%">
+
+          <p class="center-text" style="width: 70%; text-align: left; margin: 0 auto;">
+            We provide the visualization of depth maps generated through rendering (rasterization), which is essential for producing interpretable 3D representations.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Concurrent Work. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Fusion and 3D Gaussian prediction Module</h2>
+          <div class="content has-text-justified">
+            <img src="./static/images/supple_figure_encoder_architecture.jpg">
+            <p align="justify">
+              Detailed 3D Gaussian prediction architecture. This module takes only context images as input. We only employ the encoder part of <a href="https://github.com/naver/croco" target="_blank">CroCo</a> as our monocular encoder, which is trained in a fully self-supervised manner. For the multi-view encoder, we adopt the backbone of <a href="https://github.com/autonomousvision/unimatch" target="_blank">UniMatch</a> with randomly initialized weights. Then, we unify features from monocular and multi-view encoders using DPT block.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    new BeforeAfter({
+      id: '#example1'
+    });
+    new BeforeAfter({
+      id: '#example2'
+    });
+    new BeforeAfter({
+      id: '#example4'
+    });
+    new BeforeAfter({
+      id: '#example5'
+    });
+
+  </script>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>
+      @misc{kang2024codecnerf,
+      title={CodecNeRF: Toward Fast Encoding and Decoding, Compact, and High-quality Novel-view Synthesis}, 
+      author={Gyeongjin Kang and Younggeun Lee and Eunbyung Park},
+      year={2024},
+      eprint={2404.04913},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+      }
+    </code></pre>
+  </div>
+</section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="content has-text-centered">
+        <a class="icon-link" href="https://gynjn.github.io/selfsplat/">
+          <i class="fas fa-file-pdf"></i>
+        </a>
+        <a class="icon-link" href="https://gynjn.github.io/selfsplat/" class="external-link" disabled>
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This website borrowed template from <a href="https://github.com/nerfies/nerfies.github.io">nerfies</a> and <a href="https://github.com/haofeixu/haofeixu.github.io/tree/master/depthsplat">depthsplat</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>
