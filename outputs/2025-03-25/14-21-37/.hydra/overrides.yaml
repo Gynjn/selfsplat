@@ -1,0 +1,2 @@
+- wandb.mode=disabled
+- +experiment=re10k

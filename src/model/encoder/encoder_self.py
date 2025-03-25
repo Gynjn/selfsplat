@@ -5,10 +5,11 @@ import torch
 from einops import rearrange, repeat
 from jaxtyping import Float
 from torch import Tensor, nn
+import torch.nn.functional as F
 
 from ...dataset.shims.patch_shim import apply_patch_shim
 from ...dataset.types import BatchedExample, DataShim
-from ...geometry.projection import sample_image_grid, get_world_rays
+from ...geometry.projection import sample_image_grid
 from ...geometry.ssl import (
     pose_vec2mat,
     homogenize_matrices,
@@ -82,8 +83,8 @@ class EncoderSelf(Encoder[EncoderSelfCfg]):
                 model_channels=32,
                 out_channels=32,
                 num_res_blocks=1, 
-                attention_resolutions=[16],
-                channel_mult=[1, 1, 1],
+                attention_resolutions=[8],
+                channel_mult=[1, 1, 1, 1],
                 num_head_channels=32,
                 dims=2,
                 postnorm=True,
@@ -103,8 +104,8 @@ class EncoderSelf(Encoder[EncoderSelfCfg]):
                 model_channels=32,
                 out_channels=8,
                 num_res_blocks=1, 
-                attention_resolutions=[16],
-                channel_mult=[1, 1, 1, 1, 1],
+                attention_resolutions=[8],
+                channel_mult=[1, 1, 1, 1],
                 num_head_channels=32,
                 dims=2,
                 postnorm=True,
@@ -129,8 +130,8 @@ class EncoderSelf(Encoder[EncoderSelfCfg]):
                 model_channels=32,
                 out_channels=32,
                 num_res_blocks=1,
-                attention_resolutions=[16],
-                channel_mult=[1, 2, 4, 8],  # [1, 1, 2, 4]
+                attention_resolutions=[8],
+                channel_mult=[1, 1, 2, 4],  # [1, 1, 2, 4]
                 num_head_channels=32,
                 dims=2,
                 postnorm=False,
@@ -186,26 +187,25 @@ class EncoderSelf(Encoder[EncoderSelfCfg]):
         feat_unet = self.refine_unet(feat_unet) # ((v, b), 34, H, W)
         features = rearrange(feat_unet, "(v b) c h w -> (b v) c h w", b=b, v=v)
 
-        pluc_ray, _ = sample_image_grid((h, w), device) # (h w xy)
-        pluc_ray = repeat(pluc_ray, "h w xy -> b v (h w) xy", b=b, v=3)
-        a = rearrange(torch.stack([context["intrinsics"][:, 0], context["intrinsics"][:, 1], target["intrinsics"][:, 0]], dim=1), "b v i j -> b v () i j")
-        a[:, :, :, :1] *= w
-        a[:, :, :, 1:2] *= h          
-        identity_extrs = torch.eye(4, device=device).unsqueeze(0).expand(b, 3, 4, 4)
-        pluc_ori, pluc_dir = get_world_rays(
-            pluc_ray,            
-            rearrange(identity_extrs, "b v i j -> b v () i j"),
-            a,
-        ) # (b v (h w) 3), (b v (h w) 3)
-        pluc_dir = rearrange(pluc_dir, "b v (h w) c -> b v h w c", h=h, w=w).permute(0, 1, 4, 2, 3)
+        x, y = torch.meshgrid(torch.arange(w), torch.arange(h), indexing="xy")
+        x = (x.to(context["extrinsics"].dtype) + 0.5).view(1, 1, -1).expand(b, v+1, -1).to(device).contiguous()
+        y = (y.to(context["extrinsics"].dtype) + 0.5).view(1, 1, -1).expand(b, v+1, -1).to(device).contiguous()
+        intr_stack = torch.stack([context["intrinsics"][:, 0], context["intrinsics"][:, 1], target["intrinsics"][:, 0]], dim=1).clone()
+        intr_stack[:, :, 0] *= float(w)
+        intr_stack[:, :, 1] *= float(h)
+        x = (x-intr_stack[:, :, 0:1, 2]) / intr_stack[:, :, 0:1, 0] # (x-cx)/fx
+        y = (y-intr_stack[:, :, 1:2, 2]) / intr_stack[:, :, 1:2, 1] # (y-cy)/fy
+        ray_d = torch.stack([x, y, torch.ones_like(x)], dim=-1).float() # (B, V+1, H*W, 3)
+        ray_d = F.normalize(ray_d, p=2, dim=-1) # (B, V+1, H*W, 3)
+        ray_d = rearrange(ray_d, "b v (h w) c -> b v c h w", h=h, w=w)
         
         imgs = rearrange(torch.stack([croco_img1, croco_img2, trgt_img], dim=1), "b v c h w -> (v b) c h w")
         matching_prob = self.matching_unet(imgs) # ((v, b), 3, H, W)
-        matching_prob = matching_prob / (matching_prob.norm(dim=1, keepdim=True) + 1e-8)
+        # matching_prob = matching_prob / (matching_prob.norm(dim=1, keepdim=True) + 1e-8)
         matching_prob = rearrange(matching_prob, "(v b) c h w -> b v c h w", b=b, v=v+1)
-        croco_img1_pose = torch.cat([croco_img1, matching_prob[:, 0], pluc_dir[:, 0]], dim=1) # (B, 9, H, W)
-        croco_img2_pose = torch.cat([croco_img2, matching_prob[:, 1], pluc_dir[:, 1]], dim=1) # (B, 9, H, W)
-        trgt_img_pose = torch.cat([trgt_img, matching_prob[:, 2], pluc_dir[:, 2]], dim=1) # (B, 12, H, W)
+        croco_img1_pose = torch.cat([croco_img1, matching_prob[:, 0], ray_d[:, 0]], dim=1) # (B, 9, H, W)
+        croco_img2_pose = torch.cat([croco_img2, matching_prob[:, 1], ray_d[:, 1]], dim=1) # (B, 9, H, W)
+        trgt_img_pose = torch.cat([trgt_img, matching_prob[:, 2], ray_d[:, 2]], dim=1) # (B, 12, H, W)
         
         # Get forward pose and reverse pose
         if val_or_test:
@@ -237,26 +237,27 @@ class EncoderSelf(Encoder[EncoderSelfCfg]):
         disps = rearrange(disps, "(b v) c h w -> b v c h w", b=b, v=v)
         
         extr_clone = poses_rev.clone().detach()
-        dpluc_ray, _ = sample_image_grid((h, w), device) # (h w xy)
-        aa = rearrange(torch.stack([context["intrinsics"][:, 0], context["intrinsics"][:, 1]], dim=1), "b v i j -> b v () i j")
-        aa[:, :, :, :1] *= w
-        aa[:, :, :, 1:2] *= h                      
-        dpluc_ray = repeat(dpluc_ray, "h w xy -> b v (h w) xy", b=b, v=2)
-        dpluc_ori, dpluc_dir = get_world_rays(
-            dpluc_ray,
-            rearrange(extr_clone, "b v i j -> b v () i j"),
-            aa,
-        ) # (b v (h w) 3), (b v (h w) 3)
-        dpluc_dir = rearrange(dpluc_dir, "b v (h w) c -> b v h w c", h=h, w=w)
-        dpluc_ori = rearrange(dpluc_ori, "b v (h w) c -> b v h w c", h=h, w=w)
-        dray_pluc = torch.cat([torch.cross(dpluc_ori, dpluc_dir, dim=-1), dpluc_dir], dim=-1).permute(0, 1, 4, 2, 3) # [b v h w 6]        
+        x_r, y_r = torch.meshgrid(torch.arange(w), torch.arange(h), indexing="xy")
+        x_r = (x_r.to(context["extrinsics"].dtype) + 0.5).view(1, 1, -1).expand(b, v, -1).to(device).contiguous()
+        y_r = (y_r.to(context["extrinsics"].dtype) + 0.5).view(1, 1, -1).expand(b, v, -1).to(device).contiguous()
+        intr_stack_r = torch.stack([context["intrinsics"][:, 0], context["intrinsics"][:, 1]], dim=1).clone()
+        intr_stack_r[:, :, 0] *= float(w)
+        intr_stack_r[:, :, 1] *= float(h)
+        x_r = (x_r-intr_stack_r[:, :, 0:1, 2]) / intr_stack_r[:, :, 0:1, 0] # (x-cx)/fx
+        y_r = (y_r-intr_stack_r[:, :, 1:2, 2]) / intr_stack_r[:, :, 1:2, 1] # (y-cy)/fy
+        ray_d_r = torch.stack([x_r, y_r, torch.ones_like(x_r)], dim=-1).float() # (B, V, H*W, 3)
+        ray_d_r = F.normalize(ray_d_r, p=2, dim=-1) # (B, V, H*W, 3)
+        ray_d_r = ray_d_r @ extr_clone[:, :, :3, :3].transpose(-1, -2).contiguous() # (B, V, H*W, 3)
+        ray_o_r = extr_clone[:, :, :3, 3].unsqueeze(2).expand(-1, -1, h*w, -1) # (B, V, H*W, 3)
+        pluc_r = torch.cat([torch.cross(ray_o_r, ray_d_r, dim=-1), ray_d_r], dim=-1) # (B, V, H*W, 6)
+        pluc_r = rearrange(pluc_r, "b v (h w) c -> b v c h w", h=h, w=w)
 
-        depth_refine_input = torch.cat([context["image"], disps, dray_pluc], dim=2) # (B, V, 10, H, W)
+        depth_refine_input = torch.cat([context["image"], disps, pluc_r], dim=2) # (B, V, 10, H, W)
         depth_refine_input = rearrange(depth_refine_input, "b v c h w -> (v b) c h w")
         depth_refine_output = self.depth_refine_unet(depth_refine_input) # ((v, b), 10, H, W)
         depth_refine_output = rearrange(depth_refine_output, "(v b) c h w -> b v c h w", v=v)
 
-        disps = (disps + depth_refine_output.sigmoid() - 0.5).clamp(
+        disps = (disps + depth_refine_output).clamp(
             1.0 / rearrange(context["far"], "b v -> b v () () ()"),
             1.0 / rearrange(context["near"], "b v -> b v () () ()"),)
             
@@ -305,8 +306,6 @@ class EncoderSelf(Encoder[EncoderSelfCfg]):
                 depths, "b v (h w) srf s -> b v h w srf s", h=h, w=w
             )
 
-        opacity_multiplier = 1
-
         return (Gaussians(
             rearrange(
                 gaussians.means,
@@ -321,11 +320,10 @@ class EncoderSelf(Encoder[EncoderSelfCfg]):
                 "b v r srf spp c d_sh -> b (v r srf spp) c d_sh",
             ),
             rearrange(
-                opacity_multiplier * gaussians.opacities,
+                gaussians.opacities,
                 "b v r srf spp -> b (v r srf spp)",
             ),
         ), poses, poses_rev, rearrange(depths, "b v (h w) srf s -> b v (srf s) h w", h=h, w=w), matching_prob,)
-
 
 
     def normalize_image(self, images):

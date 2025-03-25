@@ -153,12 +153,9 @@ class DatasetRE10k(IterableDataset):
 
                 scale = 1
 
-                context_extrinsics = extrinsics[context_indices]
-                target_extrinsics = extrinsics[target_indices]
-
                 example = {
                     "context": {
-                        "extrinsics": context_extrinsics,
+                        "extrinsics": extrinsics[context_indices],
                         "intrinsics": intrinsics[context_indices],
                         "image": context_images,
                         "near": self.get_bound("near", len(context_indices)) / scale,
@@ -166,7 +163,7 @@ class DatasetRE10k(IterableDataset):
                         "index": context_indices,
                     },
                     "target": {
-                        "extrinsics": target_extrinsics,
+                        "extrinsics": extrinsics[target_indices],
                         "intrinsics": intrinsics[target_indices],
                         "image": target_images,
                         "near": self.get_bound("near", len(target_indices)) / scale,

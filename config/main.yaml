@@ -56,4 +56,4 @@ trainer:
   max_steps: -1
   val_check_interval: 0.5 #5000
   gradient_clip_val: 0.5
-  limit_test_batches: 5
+  limit_test_batches: 10000

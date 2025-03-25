@@ -55,7 +55,6 @@ class DatasetDL3DV(IterableDataset):
         self.stage = stage
         self.view_sampler = view_sampler
         self.to_tensor = tf.ToTensor()
-        # NOTE: update near & far; remember to DISABLE `apply_bounds_shim` in encoder
         if cfg.near != -1:
             self.near = cfg.near
         if cfg.far != -1:
@@ -122,7 +121,7 @@ class DatasetDL3DV(IterableDataset):
                         intrinsics,
                     )
                     if self.stage == "test":
-                        target_indices = target_indices[len(target_indices)//2:len(target_indices)//2 + 1]
+                        target_indices = target_indices[len(target_indices)//2 -1:len(target_indices)//2]
                         
                 except ValueError:
                     
@@ -156,8 +155,8 @@ class DatasetDL3DV(IterableDataset):
                     continue
 
                 # Skip the example if the images don't have the right shape.
-                context_image_invalid = context_images.shape[1:] != (3, 270, 480)
-                target_image_invalid = target_images.shape[1:] != (3, 270, 480)
+                context_image_invalid = context_images.shape[1:] != (3, 540, 960)
+                target_image_invalid = target_images.shape[1:] != (3, 540, 960)
                 if context_image_invalid or target_image_invalid:
                     print(
                         f"Skipped bad example {example['key']}. Context shape was "
@@ -197,12 +196,9 @@ class DatasetDL3DV(IterableDataset):
                 else:
                     scale = 1
                 
-                context_extrinsics = extrinsics[context_indices]
-                target_extrinsics = extrinsics[target_indices]
-                
                 example = {
                     "context": {
-                        "extrinsics": context_extrinsics,
+                        "extrinsics": extrinsics[context_indices],
                         "intrinsics": intrinsics[context_indices],
                         "image": context_images,
                         "near": self.get_bound("near", len(context_indices)) / scale,
@@ -210,7 +206,7 @@ class DatasetDL3DV(IterableDataset):
                         "index": context_indices,
                     },
                     "target": {
-                        "extrinsics": target_extrinsics,
+                        "extrinsics": extrinsics[target_indices],
                         "intrinsics": intrinsics[target_indices],
                         "image": target_images,
                         "near": self.get_bound("near", len(target_indices)) / scale,
@@ -219,10 +215,8 @@ class DatasetDL3DV(IterableDataset):
                     },
                     "scene": scene,
                 }
-             
-                if self.stage == "train" and self.cfg.augment:
-                    example = apply_augmentation_shim(example)
-                yield apply_crop_shim(example, tuple(self.cfg.image_shape))
+                example = apply_crop_shim(example, tuple(self.cfg.image_shape))
+                yield example
 
     def make_poses_relative_to_ref_w2c(self, ref_extrinsic, extrinsics):
         ref_extr_inv = ref_extrinsic.inverse()

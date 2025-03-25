@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Train (Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.main",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "wandb.mode=disabled",
+                "+experiment=re10k",
+                "mode=test",
+                // "trainer.val_check_interval=1000",
+                // "data_loader.train.num_workers=0",
+                // "data_loader.test.num_workers=0",
+                // "data_loader.val.num_workers=0",
+                // "data_loader.train.batch_size=1",
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0",
+            }
+        },
+    ]
+}

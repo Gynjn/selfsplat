@@ -1,0 +1,104 @@
+dataset:
+  view_sampler:
+    name: bounded
+    num_target_views: 1
+    num_context_views: 2
+    min_distance_between_context_views: 25
+    max_distance_between_context_views: 25
+    min_distance_to_context_views: 0
+    warm_up_steps: 50000
+    initial_min_distance_between_context_views: 5
+    initial_max_distance_between_context_views: 5
+  name: re10k
+  roots:
+  - /hdd_1/jinnnn/re10k
+  make_baseline_1: false
+  augment: false
+  image_shape:
+  - 256
+  - 256
+  background_color:
+  - 0.0
+  - 0.0
+  - 0.0
+  cameras_are_circular: false
+  baseline_epsilon: 0.001
+  max_fov: 100.0
+  overfit_to_scene: null
+  near: 1.0
+  far: 100.0
+model:
+  encoder:
+    name: self
+    opacity_mapping:
+      initial: 0.0
+      final: 0.0
+      warm_up: 1
+    num_surfaces: 1
+    gaussians_per_pixel: 1
+    d_feature: 128
+    gaussian_adapter:
+      gaussian_scale_min: 0.5
+      gaussian_scale_max: 15.0
+      sh_degree: 1
+    downscale_factor: 4
+    shim_patch_size: 4
+    croco_backbone:
+      ckpt_path: checkpoints/CroCo_V2_ViTLarge_BaseDecoder.pth
+      img_size:
+      - 256
+      - 256
+      adapt: true
+    using_matching_net: true
+    using_depth_refine: true
+  decoder:
+    name: splatting_cuda
+loss:
+  repro:
+    weight: 0.6
+    geo_weight: 0.2
+  mse:
+    weight: 0.4
+wandb:
+  project: selfsplat
+  entity: anonymous
+  name: re10k
+  mode: disabled
+  tags:
+  - re10k
+  - 256x256
+mode: test
+data_loader:
+  train:
+    num_workers: 8
+    persistent_workers: true
+    batch_size: 12
+    seed: 1234
+  test:
+    num_workers: 4
+    persistent_workers: false
+    batch_size: 1
+    seed: 2345
+  val:
+    num_workers: 1
+    persistent_workers: true
+    batch_size: 1
+    seed: 3456
+optimizer:
+  lr: 0.0001
+  warm_up_steps: 2000
+checkpointing:
+  load: /home/jinnnn/selfsplat_test/pretrained/selfsplat_re10k_200k.ckpt
+  every_n_train_steps: 50000
+  save_top_k: -1
+train:
+  depth_mode: null
+  extended_visualization: false
+test:
+  output_path: outputs/test
+seed: 111123
+trainer:
+  max_steps: 200001
+  val_check_interval: 0.5
+  gradient_clip_val: 0.5
+  limit_test_batches: 10000

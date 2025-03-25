@@ -1,0 +1,14 @@
+defaults:
+  - view_sampler: bounded
+
+name: dl3dv
+roots: [/dataset/dl3dv]
+make_baseline_1: false
+augment: false
+
+image_shape: [180, 320]
+background_color: [0.0, 0.0, 0.0]
+cameras_are_circular: false
+
+baseline_epsilon: 1e-3
+max_fov: 100.0

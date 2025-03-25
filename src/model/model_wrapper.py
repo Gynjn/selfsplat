@@ -373,31 +373,6 @@ class ModelWrapper(LightningModule):
 
 
     @rank_zero_only
-    def render_video_wobble(self, batch: BatchedExample) -> None:
-        # Two views are needed to get the wobble radius.
-        _, v, _, _ = batch["context"]["extrinsics"].shape
-        if v != 2:
-            return
-
-        def trajectory_fn(t):
-            origin_a = batch["context"]["extrinsics"][:, 0, :3, 3]
-            origin_b = batch["context"]["extrinsics"][:, 1, :3, 3]
-            delta = (origin_a - origin_b).norm(dim=-1)
-            extrinsics = generate_wobble(
-                batch["context"]["extrinsics"][:, 0],
-                delta * 0.25,
-                t,
-            )
-            intrinsics = repeat(
-                batch["context"]["intrinsics"][:, 0],
-                "b i j -> b v i j",
-                v=t.shape[0],
-            )
-            return extrinsics, intrinsics
-
-        return self.render_video_generic(batch, trajectory_fn, "wobble", num_frames=60)
-
-    @rank_zero_only
     def render_video_interpolation(self, batch: BatchedExample) -> None:
         _, v, _, _ = batch["context"]["extrinsics"].shape
 

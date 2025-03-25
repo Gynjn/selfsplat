@@ -1,0 +1,7 @@
+curope.cpp
+kernels.cu
+setup.py
+curope.egg-info/PKG-INFO
+curope.egg-info/SOURCES.txt
+curope.egg-info/dependency_links.txt
+curope.egg-info/top_level.txt

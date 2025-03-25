@@ -122,11 +122,13 @@ class LossRepro(Loss[LossReproCfg, LossReproCfgWrapper]):
         tgt_img = batch["target"]["image"][:, 0]
         ctxt_img = batch["context"]["image"]
 
+        ctx_depths = [prediction.depth[:, 0], prediction.depth[:, -1]]
+        
         for i in range(n):
             diff_img1, diff_color1, diff_depth1, valid_mask1 = self.compute_pairwise_loss(
-                tgt_img, ctxt_img[:, i], prediction.depth[:, 1], depths[:, i], pose[:, i], intrinsics)
+                tgt_img, ctxt_img[:, i], prediction.depth[:, 1], ctx_depths[i], pose[:, i], intrinsics)
             diff_img2, diff_color2, diff_depth2, valid_mask2 = self.compute_pairwise_loss(
-                ctxt_img[:, i], tgt_img, depths[:, i], prediction.depth[:, 1], pose_rev[:,i], intrinsics_rev)
+                ctxt_img[:, i], tgt_img, ctx_depths[i], prediction.depth[:, 1], pose_rev[:,i], intrinsics_rev)
             diff_img_list += [diff_img1, diff_img2]
             diff_color_list += [diff_color1, diff_color2]
             diff_depth_list += [diff_depth1, diff_depth2]
