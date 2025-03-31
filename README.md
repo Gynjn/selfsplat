@@ -31,10 +31,6 @@
 <strong>TL;DR: We present SelfSplat, enabling 3D reconstruction from unposed images without any 3D priors.</strong>
 </p>
 
-<p align="center">
-  Supplementary materials will be released in a few days.
-</p>
-
 ## Installation
 
 To get started, create a virtual environment using Python 3.10:
