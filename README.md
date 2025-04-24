@@ -17,6 +17,7 @@
     ·
     <a href="https://silverbottlep.github.io/">Eunbyung Park</a>    
   </p>
+  <h3 align="center">CVPR 2025</h3>  
   <h3 align="center"><a href="https://arxiv.org/abs/2411.17190">Paper</a> | <a href="https://gynjn.github.io/selfsplat/">Project Page</a> </h3>
   <div align="center"></div>
 </p>
