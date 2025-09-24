@@ -113,11 +113,12 @@ Contact [Gyeongjin Kang](mailto:ggggjin99@gmail.com) if you have any further que
 ## Citation
 
 ```
-@article{kang2024selfsplat,
-  title={SelfSplat: Pose-Free and 3D Prior-Free Generalizable 3D Gaussian Splatting},
+@inproceedings{kang2025selfsplat,
+  title={SelfSplat: Pose-free and 3D prior-free generalizable 3D Gaussian splatting},
   author={Kang, Gyeongjin and Yoo, Jisang and Park, Jihyeon and Nam, Seungtae and Im, Hyeonsoo and Shin, Sangheon and Kim, Sangpil and Park, Eunbyung},
-  journal={arXiv preprint arXiv:2411.17190},
-  year={2024}
+  booktitle={Proceedings of the Computer Vision and Pattern Recognition Conference},
+  pages={22012--22022},
+  year={2025}
 }
 ```
 
