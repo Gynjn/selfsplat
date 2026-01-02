@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">SelfSplat: Pose-Free and 3D Prior-Free Generalizable 3D Gaussian Splatting</h1>
   <p align="center">
-    <a href="https://github.com/Gynjn">Gyeongjin Kang</a>
+    <a href="https://gynjn.github.io/info/">Gyeongjin Kang</a>
     ·
     <a href="https://github.com/Yoo-jisang">Jisang Yoo</a>
     ·
